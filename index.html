@@ -1,0 +1,75 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Money Clicker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app" id="app">
+    <aside class="sidebar">
+      <button class="nav-button" id="achievementsBtn">TROPHY<br>ACHIEVEMENTS</button>
+      <button class="nav-button" id="statsBtn">CHART<br>STATISTICS</button>
+      <button class="nav-button" id="codeBtn">CODE<br>CODE</button>
+      <button class="nav-button hidden admin" id="adminBtn">ADMIN<br>COMMANDS</button>
+      <button class="nav-button" id="saveBtn">SAVE<br>SAVE</button>
+      <button class="nav-button danger" id="resetBtn">RESET<br>RESET</button>
+    </aside>
+
+    <section class="play">
+      <div class="top-cards">
+        <article class="stat-card">
+          <span>MONEY</span>
+          <strong id="moneyValue">$0</strong>
+        </article>
+        <article class="stat-card">
+          <span>MONEY / SECOND</span>
+          <strong id="perSecondValue">$0 / sec total</strong>
+        </article>
+        <article class="stat-card">
+          <span>STAR LEVEL</span>
+          <strong id="levelValue">1</strong>
+        </article>
+      </div>
+
+      <div class="xp-wrap">
+        <div class="xp-fill" id="xpFill"></div>
+        <span id="xpText">0 / 200 XP</span>
+      </div>
+
+      <button class="click-button normal" id="clickButton" aria-label="Click for money">
+        <span class="click-shape circle">$</span>
+      </button>
+
+      <div class="bottom-cards">
+        <article class="stat-card wide">
+          <span>EACH CLICK</span>
+          <strong id="eachClickValue">$1</strong>
+        </article>
+        <article class="stat-card wide">
+          <span>MONEY CARD</span>
+          <strong id="bottomMoneyValue">$0</strong>
+        </article>
+      </div>
+    </section>
+
+    <aside class="shop">
+      <h1>CART SHOP</h1>
+      <div id="shopList" class="shop-list"></div>
+    </aside>
+  </main>
+
+  <dialog id="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle"></h2>
+      <button id="closeModal" class="icon-button" aria-label="Close">X</button>
+    </div>
+    <div id="modalBody" class="modal-body"></div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
+
