@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --root: #07131f;
   --panel: #09203a;
   --card: #07131f;
@@ -34,7 +34,7 @@ button {
 
 .app {
   display: grid;
-  grid-template-columns: 116px minmax(430px, 1fr) minmax(300px, 430px);
+  grid-template-columns: 150px minmax(380px, 1fr) minmax(420px, 560px);
   gap: 10px;
   height: 100vh;
   padding: 10px;
@@ -52,9 +52,9 @@ button {
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   overflow-y: auto;
-  padding: 8px;
+  padding: 10px;
 }
 
 .nav-button,
@@ -70,10 +70,10 @@ button {
 }
 
 .nav-button {
-  min-height: 72px;
+  min-height: 96px;
   width: 100%;
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: 15px;
+  line-height: 1.25;
 }
 
 .nav-button:hover,
@@ -204,35 +204,41 @@ button {
 }
 
 .car {
-  width: 96%;
-  height: 56%;
-  margin-top: 44px;
-  border: 8px solid var(--outline);
-  border-radius: 30px 44px 22px 22px;
+  width: 98%;
+  height: 48%;
+  margin-top: 74px;
+  border: 7px solid var(--outline);
+  border-radius: 18px 44px 22px 18px;
   background: var(--money);
+  clip-path: polygon(2% 62%, 16% 42%, 45% 34%, 58% 12%, 74% 14%, 83% 36%, 96% 42%, 100% 58%, 94% 76%, 10% 80%);
+  box-shadow: inset 0 -14px 0 rgba(0, 0, 0, 0.22);
 }
 .car::before {
   content: "";
   position: absolute;
-  top: -58px;
-  left: 26%;
-  width: 42%;
-  height: 70px;
-  border: 8px solid var(--outline);
-  border-bottom: 0;
-  border-radius: 28px 28px 0 0;
+  top: 19%;
+  left: 54%;
+  width: 18%;
+  height: 22%;
+  border: 6px solid var(--outline);
+  border-radius: 50% 48% 14px 14px;
   background: var(--accent);
+  transform: skewX(-18deg);
+  box-shadow:
+    -142px 44px 0 -22px var(--star),
+    112px -16px 0 -18px var(--outline);
 }
 .car::after {
   content: "";
   position: absolute;
-  left: 18%;
-  right: 18%;
-  bottom: -32px;
-  height: 52px;
+  left: 9%;
+  right: 10%;
+  bottom: -10px;
+  height: 86px;
   background:
-    radial-gradient(circle at 0 50%, var(--outline) 0 25px, transparent 26px),
-    radial-gradient(circle at 100% 50%, var(--outline) 0 25px, transparent 26px);
+    radial-gradient(circle at 13% 64%, #101010 0 29px, var(--outline) 30px 39px, transparent 40px),
+    radial-gradient(circle at 85% 64%, #101010 0 29px, var(--outline) 30px 39px, transparent 40px),
+    linear-gradient(90deg, transparent 72%, var(--outline) 73% 92%, transparent 93%);
 }
 
 .controller {
@@ -364,20 +370,28 @@ button {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   overflow-y: auto;
-  padding: 0 12px 12px;
+  padding: 0 16px 16px;
 }
 
 .shop-item {
-  min-height: 76px;
-  padding: 8px;
+  min-height: 112px;
+  padding: 14px;
   text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .shop-item strong,
 .shop-item span {
   display: block;
+  max-width: 100%;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 dialog {
@@ -480,3 +494,8 @@ dialog::backdrop {
     min-height: 360px;
   }
 }
+
+
+
+
+
