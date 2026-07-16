@@ -1,7 +1,8 @@
 ﻿const ADMIN_CODE = "marwan the best";
 const ADMIN_MAX_MONEY = BigInt("9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999");
 const INFINITY_SHOP_BUY_AMOUNT = BigInt("999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999");
-const SAVE_KEY = "money-clicker-web-marwan";
+const SAVE_KEY_PREFIX = "money-clicker-web-profile-";
+const OLD_SAVE_KEY = "money-clicker-web-marwan";
 
 const SHOP_ITEMS = [
   { name: "Starter Cursor", price: 15n, kind: "click", amount: 1n, desc: "+1 per click" },
@@ -127,26 +128,66 @@ function updateClickShape() {
   shape.textContent = themeShape === "circle" ? "$" : "";
 }
 
+function cleanUsername(name) {
+  const cleaned = (name || "").trim().replace(/\s+/g, " ");
+  return cleaned || "marwan";
+}
+
+function saveKeyFor(username) {
+  return `${SAVE_KEY_PREFIX}${username.toLowerCase()}`;
+}
+
+function askForProfile() {
+  const lastUser = localStorage.getItem("money-clicker-last-user") || state.username;
+  const username = cleanUsername(prompt("Enter your username:", lastUser));
+  state.username = username;
+  localStorage.setItem("money-clicker-last-user", username);
+}
+
+function parseSave(raw) {
+  return JSON.parse(raw, (_, value) => {
+    if (typeof value === "string" && /^\d+n$/.test(value)) return BigInt(value.slice(0, -1));
+    return value;
+  });
+}
+
+function normalizeLoadedState(data) {
+  Object.assign(state, data);
+  state.username = cleanUsername(state.username);
+  state.adminUnlocked = false;
+  state.shopCounts = (state.shopCounts || []).concat(SHOP_ITEMS.map(() => 0n)).slice(0, SHOP_ITEMS.length);
+  if (!THEMES[state.theme]) state.theme = "car";
+}
+
 function saveGame(show = false) {
   const data = JSON.stringify(state, (_, value) => typeof value === "bigint" ? `${value}n` : value);
-  localStorage.setItem(SAVE_KEY, data);
-  if (show) toast("Saved.");
+  localStorage.setItem(saveKeyFor(state.username), data);
+  localStorage.setItem("money-clicker-last-user", state.username);
+  if (show) toast(`Saved profile ${state.username}.`);
 }
 
 function loadGame() {
-  const raw = localStorage.getItem(SAVE_KEY);
-  if (!raw) return;
+  askForProfile();
+  const key = saveKeyFor(state.username);
+  let raw = localStorage.getItem(key);
+
+  if (!raw && state.username.toLowerCase() === "marwan") {
+    raw = localStorage.getItem(OLD_SAVE_KEY);
+  }
+
+  if (!raw) {
+    saveGame(false);
+    toast(`New profile: ${state.username}`);
+    return;
+  }
+
   try {
-    const data = JSON.parse(raw, (_, value) => {
-      if (typeof value === "string" && /^\d+n$/.test(value)) return BigInt(value.slice(0, -1));
-      return value;
-    });
-    Object.assign(state, data);
-    state.adminUnlocked = false;
-    state.shopCounts = (state.shopCounts || []).concat(SHOP_ITEMS.map(() => 0n)).slice(0, SHOP_ITEMS.length);
-    if (!THEMES[state.theme]) state.theme = "car";
+    normalizeLoadedState(parseSave(raw));
+    state.username = cleanUsername(state.username || localStorage.getItem("money-clicker-last-user"));
+    toast(`Loaded profile: ${state.username}`);
   } catch {
-    localStorage.removeItem(SAVE_KEY);
+    localStorage.removeItem(key);
+    toast(`New profile: ${state.username}`);
   }
 }
 
@@ -407,7 +448,7 @@ function openAdmin() {
 
 function resetGame() {
   if (!confirm("Reset all progress?")) return;
-  localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem(saveKeyFor(state.username));
   location.reload();
 }
 
@@ -451,6 +492,8 @@ setInterval(() => saveGame(false), 5000);
 
 loadGame();
 update();
+
+
 
 
 
