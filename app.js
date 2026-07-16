@@ -219,7 +219,7 @@ function buyInfinityAmount(index) {
     state.moneyPerSecond = ADMIN_MAX_MONEY;
   }
   addXp(xpNeeded());
-  toast(`Bought ${formatBig(INFINITY_SHOP_BUY_AMOUNT)} ${item.name}.`);
+  toast(`Bought ${item.name}. You still have infinity dollars.`);
 }
 
 function askBuy(index) {
@@ -333,7 +333,7 @@ function updateShop() {
     const button = document.createElement("button");
     button.className = "shop-item";
     button.style.background = affordable ? "var(--shop-affordable)" : "var(--shop-item)";
-    button.innerHTML = `<strong>${index + 1}. ${item.name}</strong><span>${item.desc}</span><span>${moneyText(price)} Owned: ${formatBig(state.shopCounts[index])}</span>`;
+    const ownedText = state.infiniteMoney ? "" : ` Owned: ${formatBig(state.shopCounts[index])}`;`r`n    button.innerHTML = `<strong>${index + 1}. ${item.name}</strong><span>${item.desc}</span><span>${moneyText(price)}${ownedText}</span>`;
     button.addEventListener("click", () => askBuy(index));
     els.shopList.append(button);
   });
@@ -450,4 +450,5 @@ setInterval(() => saveGame(false), 5000);
 
 loadGame();
 update();
+
 
