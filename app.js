@@ -78,7 +78,10 @@ const els = {
   modal: document.querySelector("#modal"),
   modalTitle: document.querySelector("#modalTitle"),
   modalBody: document.querySelector("#modalBody"),
-  toast: document.querySelector("#toast")
+  toast: document.querySelector("#toast"),
+  profileGate: document.querySelector("#profileGate"),
+  profileForm: document.querySelector("#profileForm"),
+  usernameInput: document.querySelector("#usernameInput")
 };
 
 function formatBig(value) {
@@ -137,11 +140,10 @@ function saveKeyFor(username) {
   return `${SAVE_KEY_PREFIX}${username.toLowerCase()}`;
 }
 
-function askForProfile() {
+function prepareProfileForm() {
   const lastUser = localStorage.getItem("money-clicker-last-user") || state.username;
-  const username = cleanUsername(prompt("Enter your username:", lastUser));
-  state.username = username;
-  localStorage.setItem("money-clicker-last-user", username);
+  els.usernameInput.value = lastUser;
+  els.usernameInput.focus();
 }
 
 function parseSave(raw) {
@@ -166,8 +168,9 @@ function saveGame(show = false) {
   if (show) toast(`Saved profile ${state.username}.`);
 }
 
-function loadGame() {
-  askForProfile();
+function loadGame(username) {
+  state.username = cleanUsername(username);
+  localStorage.setItem("money-clicker-last-user", state.username);
   const key = saveKeyFor(state.username);
   let raw = localStorage.getItem(key);
 
@@ -183,7 +186,7 @@ function loadGame() {
 
   try {
     normalizeLoadedState(parseSave(raw));
-    state.username = cleanUsername(state.username || localStorage.getItem("money-clicker-last-user"));
+    state.username = cleanUsername(username);
     toast(`Loaded profile: ${state.username}`);
   } catch {
     localStorage.removeItem(key);
@@ -476,22 +479,34 @@ document.querySelector("#statsBtn").addEventListener("click", () => {
   openModal("Statistics", `<p>Money: ${moneyText()}</p><p>Clicks: ${formatBig(state.clicks)}</p><p>Per click: ${clickText()}</p><p>Auto clicks: ${formatBig(state.autoClicksPerSecond)} / sec</p><p>Total money/sec: ${moneyText(totalMoneyPerSecond())}</p><p>Level: ${levelText()}</p>`);
 });
 
-setInterval(() => {
-  const earned = totalMoneyPerSecond();
-  if (earned > 0n) {
-    if (!state.infiniteMoney) state.money += earned;
-    state.totalEarned += earned;
-    state.clicks += state.autoClicksPerSecond;
-    addXp(earned / 5n || 1n);
-    checkAchievements();
-    update(false);
-  }
-}, 1000);
+function startGame(username) {
+  loadGame(username);
+  update();
+  els.profileGate.classList.add("hidden");
 
-setInterval(() => saveGame(false), 5000);
+  setInterval(() => {
+    const earned = totalMoneyPerSecond();
+    if (earned > 0n) {
+      if (!state.infiniteMoney) state.money += earned;
+      state.totalEarned += earned;
+      state.clicks += state.autoClicksPerSecond;
+      addXp(earned / 5n || 1n);
+      checkAchievements();
+      update(false);
+    }
+  }, 1000);
 
-loadGame();
-update();
+  setInterval(() => saveGame(false), 5000);
+}
+
+els.profileForm.addEventListener("submit", event => {
+  event.preventDefault();
+  startGame(els.usernameInput.value);
+});
+
+prepareProfileForm();
+
+
 
 
 
