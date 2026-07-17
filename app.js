@@ -240,7 +240,7 @@ function buyUpgrade(index, quiet = false) {
   const item = SHOP_ITEMS[index];
   const price = currentPrice(index);
   if (!state.infiniteMoney && state.money < price) {
-    if (!quiet) toast(`Need ${moneyText(price)} for ${item.name}.`);
+    if (!quiet) toast("Not enough money.");
     return false;
   }
   if (!state.infiniteMoney) state.money -= price;
@@ -377,7 +377,7 @@ function updateShop() {
     const button = document.createElement("button");
     button.className = "shop-item";
     button.style.background = affordable ? "var(--shop-affordable)" : "var(--shop-item)";
-    button.innerHTML = `<strong>${index + 1}. ${item.name}</strong><span>${item.desc}</span><span>${moneyText(price)}</span>`;
+    button.innerHTML = `<strong>${index + 1}. ${item.name}</strong><span>${item.desc}</span>`;
     button.addEventListener("click", () => askBuy(index));
     els.shopList.append(button);
   });
@@ -504,6 +504,7 @@ els.profileForm.addEventListener("submit", event => {
 });
 
 prepareProfileForm();
+
 
 
 
