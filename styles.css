@@ -446,9 +446,9 @@ button {
   min-height: 112px;
   padding: 14px;
   text-align: left;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .shop-item strong,
@@ -456,9 +456,9 @@ button {
   display: block;
   max-width: 100%;
   line-height: 1.25;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 dialog {
@@ -626,3 +626,4 @@ dialog::backdrop {
   cursor: pointer;
   font-weight: 900;
 }
+
