@@ -1,4 +1,4 @@
-﻿const ADMIN_CODE = "marwan the best";
+const ADMIN_CODE = "marwan the best";
 const ADMIN_MAX_MONEY = BigInt("9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999");
 const INFINITY_SHOP_BUY_AMOUNT = BigInt("999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999");
 const SAVE_KEY_PREFIX = "money-clicker-web-profile-";
@@ -44,6 +44,8 @@ const THEMES = {
   chocolate: { name: "Chocolate Theme", root: "#21120c", panel: "#3a2117", card: "#2a1710", cardAlt: "#563326", shopItem: "#321d14", shopAffordable: "#5d3a2a", outline: "#f2c27b", outlineAlt: "#8b4a2b", text: "#fff3df", money: "#7b3f24", accent: "#d99a5b", star: "#ffd36a", xp: "#a45c38", buttonActive: "#6a3c2a", shape: "chocolate" }
 };
 
+let gameStarted = false;
+
 const state = {
   username: "marwan",
   money: 0n,
@@ -75,6 +77,7 @@ const els = {
   shopList: document.querySelector("#shopList"),
   themeBtn: document.querySelector("#themeBtn"),
   adminBtn: document.querySelector("#adminBtn"),
+  highscoreBtn: document.querySelector("#highscoreBtn"),
   modal: document.querySelector("#modal"),
   modalTitle: document.querySelector("#modalTitle"),
   modalBody: document.querySelector("#modalBody"),
@@ -162,6 +165,7 @@ function normalizeLoadedState(data) {
 }
 
 function saveGame(show = false) {
+  state.username = cleanUsername(state.username);
   const data = JSON.stringify(state, (_, value) => typeof value === "bigint" ? `${value}n` : value);
   localStorage.setItem(saveKeyFor(state.username), data);
   localStorage.setItem("money-clicker-last-user", state.username);
@@ -192,6 +196,63 @@ function loadGame(username) {
     localStorage.removeItem(key);
     toast(`New profile: ${state.username}`);
   }
+}
+
+function profileMoneyScore(profile) {
+  if (profile.infiniteMoney) return ADMIN_MAX_MONEY;
+  if (typeof profile.money === "bigint") return profile.money;
+  return 0n;
+}
+
+function savedProfiles() {
+  const profiles = new Map();
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith(SAVE_KEY_PREFIX)) continue;
+    try {
+      const profile = parseSave(localStorage.getItem(key));
+      const name = cleanUsername(profile.username || key.slice(SAVE_KEY_PREFIX.length));
+      profiles.set(name.toLowerCase(), { ...profile, username: name });
+    } catch {
+      // Ignore broken local saves so one bad profile cannot break the board.
+    }
+  }
+  if (localStorage.getItem(OLD_SAVE_KEY) && !profiles.has("marwan")) {
+    try {
+      const oldProfile = parseSave(localStorage.getItem(OLD_SAVE_KEY));
+      profiles.set("marwan", { ...oldProfile, username: "marwan" });
+    } catch {}
+  }
+  profiles.set(state.username.toLowerCase(), { ...state });
+  return [...profiles.values()]
+    .sort((a, b) => {
+      const moneyDiff = profileMoneyScore(b) - profileMoneyScore(a);
+      if (moneyDiff > 0n) return 1;
+      if (moneyDiff < 0n) return -1;
+      return cleanUsername(a.username).localeCompare(cleanUsername(b.username));
+    });
+}
+
+function openHighscores() {
+  saveGame(false);
+  const list = document.createElement("div");
+  list.className = "highscore-list";
+  savedProfiles().forEach((profile, index) => {
+    const row = document.createElement("article");
+    const name = document.createElement("strong");
+    const money = document.createElement("span");
+    row.className = "highscore-row";
+    name.textContent = `${index + 1}. ${cleanUsername(profile.username)}`;
+    money.textContent = profile.infiniteMoney ? "infinity dollars" : moneyText(profileMoneyScore(profile));
+    row.append(name, money);
+    list.append(row);
+  });
+  if (!list.children.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "No saved users yet.";
+    list.append(empty);
+  }
+  openModal("Highscore Board", list);
 }
 
 function toast(message) {
@@ -249,6 +310,7 @@ function buyUpgrade(index, quiet = false) {
   addXp(price / 10n);
   checkAchievements();
   update();
+  saveGame(false);
   return true;
 }
 
@@ -263,6 +325,7 @@ function buyInfinityAmount(index) {
     state.moneyPerSecond = ADMIN_MAX_MONEY;
   }
   addXp(xpNeeded());
+  saveGame(false);
   toast(`Bought ${item.name}. You still have infinity dollars.`);
 }
 
@@ -280,6 +343,7 @@ function askBuy(index) {
   }
   checkAchievements();
   update();
+  saveGame(false);
 }
 
 function clickMoney(event) {
@@ -299,6 +363,7 @@ function clickMoney(event) {
   }
   checkAchievements();
   update(state.clicks % 5n === 0n);
+  if (state.clicks % 5n === 0n) saveGame(false);
 }
 
 function checkAchievements() {
@@ -474,11 +539,13 @@ document.querySelector("#achievementsBtn").addEventListener("click", () => {
   checkAchievements();
   openModal("Achievements", `<p>${state.achievements.length} / 10 unlocked</p><p>${state.achievements.join("<br>") || "None yet"}</p>`);
 });
+els.highscoreBtn.addEventListener("click", openHighscores);
 document.querySelector("#statsBtn").addEventListener("click", () => {
   openModal("Statistics", `<p>Money: ${moneyText()}</p><p>Clicks: ${formatBig(state.clicks)}</p><p>Per click: ${clickText()}</p><p>Auto clicks: ${formatBig(state.autoClicksPerSecond)} / sec</p><p>Total money/sec: ${moneyText(totalMoneyPerSecond())}</p><p>Level: ${levelText()}</p>`);
 });
 
 function startGame(username) {
+  gameStarted = true;
   loadGame(username);
   update();
   els.profileGate.classList.add("hidden");
@@ -498,18 +565,17 @@ function startGame(username) {
   setInterval(() => saveGame(false), 5000);
 }
 
+window.addEventListener("beforeunload", () => {
+  if (gameStarted) saveGame(false);
+});
+document.addEventListener("visibilitychange", () => {
+  if (gameStarted && document.visibilityState === "hidden") saveGame(false);
+});
+
 els.profileForm.addEventListener("submit", event => {
   event.preventDefault();
   startGame(els.usernameInput.value);
 });
 
 prepareProfileForm();
-
-
-
-
-
-
-
-
 

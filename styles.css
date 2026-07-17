@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --root: #07131f;
   --panel: #09203a;
   --card: #07131f;
@@ -625,5 +625,34 @@ dialog::backdrop {
   color: var(--text);
   cursor: pointer;
   font-weight: 900;
+}
+.highscore-list {
+  display: grid;
+  gap: 10px;
+}
+
+.highscore-row {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 2px solid var(--outline);
+  border-radius: 8px;
+  background: var(--card);
+  padding: 12px;
+}
+
+.highscore-row strong {
+  color: var(--star);
+  font-size: 18px;
+}
+
+.highscore-row span {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  color: var(--money);
+  font-weight: 900;
+  white-space: nowrap;
 }
 
