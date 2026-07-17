@@ -273,7 +273,7 @@ function askBuy(index) {
     } else {
       let bought = 0;
       while (buyUpgrade(index, true)) bought++;
-      toast(bought ? `Bought ${formatBig(BigInt(bought))}.` : "Not enough money.");
+      toast(bought ? "Bought item." : "Not enough money.");
     }
   } else {
     buyUpgrade(index);
@@ -377,8 +377,7 @@ function updateShop() {
     const button = document.createElement("button");
     button.className = "shop-item";
     button.style.background = affordable ? "var(--shop-affordable)" : "var(--shop-item)";
-    const ownedText = state.infiniteMoney ? "" : ` Owned: ${formatBig(state.shopCounts[index])}`;
-    button.innerHTML = `<strong>${index + 1}. ${item.name}</strong><span>${item.desc}</span><span>${moneyText(price)}${ownedText}</span>`;
+    button.innerHTML = `<strong>${index + 1}. ${item.name}</strong><span>${item.desc}</span><span>${moneyText(price)}</span>`;
     button.addEventListener("click", () => askBuy(index));
     els.shopList.append(button);
   });
@@ -505,6 +504,7 @@ els.profileForm.addEventListener("submit", event => {
 });
 
 prepareProfileForm();
+
 
 
 
